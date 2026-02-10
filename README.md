@@ -7,7 +7,6 @@
 
 > A full-stack microservices-based crowdfunding platform connecting donors with beneficiaries for Education, Medical, and Emergency campaigns.
 
-![MicroLift Banner](https://via.placeholder.com/1000x300/4A90E2/FFFFFF?text=MicroLift+-+Empowering+Communities)
 
 ---
 
