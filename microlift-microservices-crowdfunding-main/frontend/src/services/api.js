@@ -1,16 +1,17 @@
 import axios from 'axios';
+import mediaService from './mediaService';
+import { API_BASE, GATEWAY_BASE } from './config';
 
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// Public endpoints that should NEVER have a token attached
+const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/upload-kyc', '/auth/upload-kyc-public'];
 
 // Add request interceptor
 axios.interceptors.request.use(
     (config) => {
+        const isPublic = PUBLIC_ENDPOINTS.some(ep => config.url?.includes(ep));
         const token = localStorage.getItem('token');
-        if (token) {
-            console.log("DEBUG: Attaching token to request:", config.url, token.substring(0, 10) + "...");
+        if (token && !isPublic) {
             config.headers.Authorization = `Bearer ${token}`;
-        } else {
-            console.log("DEBUG: No token found in localStorage for:", config.url);
         }
         return config;
     },
@@ -29,12 +30,10 @@ axios.interceptors.response.use(
                 return Promise.reject(error);
             }
             if (window.location.pathname !== '/login') {
-                console.log("DEBUG: Auth error detected. Status:", error.response.status);
-                // ALERT for debugging
-                alert(`Error ${error.response.status} for URL: ${originalRequest.url}\nCheck console.`);
-                // localStorage.removeItem('token');
-                // localStorage.removeItem('user');
-                // window.location.href = '/login';
+                console.warn(`Auth error ${error.response.status} for URL: ${originalRequest.url}`);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);
@@ -47,7 +46,7 @@ export const campaignService = {
         const getFullImageUrl = (path) => {
             const PLACEHOLDER = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NjY2NiIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+";
             if (!path) return PLACEHOLDER;
-            return path.startsWith('http') ? path : `http://localhost:8080/${path}`;
+            return path.startsWith('http') ? path : `${GATEWAY_BASE}/${path}`;
         };
         const activeCampaigns = Array.isArray(response.data) ? response.data : [];
         return activeCampaigns.map(campaign => ({
@@ -63,7 +62,7 @@ export const campaignService = {
         const getFullImageUrl = (path) => {
             const PLACEHOLDER = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NjY2NiIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+";
             if (!path) return PLACEHOLDER;
-            return path.startsWith('http') ? path : `http://localhost:8080/${path}`;
+            return path.startsWith('http') ? path : `${GATEWAY_BASE}/${path}`;
         };
         return activeCampaigns.map(campaign => ({
             ...campaign,
@@ -78,7 +77,7 @@ export const campaignService = {
         const getFullImageUrl = (path) => {
             const PLACEHOLDER = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NjY2NiIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+";
             if (!path) return PLACEHOLDER;
-            return path.startsWith('http') ? path : `http://localhost:8080/${path}`;
+            return path.startsWith('http') ? path : `${GATEWAY_BASE}/${path}`;
         };
         return { ...data, imageUrl: getFullImageUrl(data.imageUrl) };
     },
@@ -110,8 +109,6 @@ export const campaignService = {
 export const authService = {
     uploadKyc: async (email, file) => {
         // Step 1: Upload to Media Service
-        const mediaServiceModule = await import('./mediaService');
-        const mediaService = mediaServiceModule.default;
         const mediaResponse = await mediaService.uploadFile(file);
         const kycUrl = mediaResponse.url;
         console.log("DEBUG: Calling updateKycUrl with", email, kycUrl);

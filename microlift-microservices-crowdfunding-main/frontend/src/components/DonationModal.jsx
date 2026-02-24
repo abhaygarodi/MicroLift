@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, InputGroup, Alert, Spinner } from 'react-bootstrap';
 import { FaLock, FaCheckCircle } from 'react-icons/fa';
-import { donationService } from '../services/api';
+import { donationService, campaignService, authService } from '../services/api';
+import { emailService } from '../services/emailService';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -62,12 +63,10 @@ const DonationModal = ({ show, onHide, campaignTitle, campaignId }) => {
 
             // 3. Fetch campaign details to get beneficiary info for email
             try {
-                const { campaignService, authService } = await import('../services/api');
                 const campaign = await campaignService.getCampaignById(campaignId);
                 const beneficiary = await authService.getUserById(campaign.beneficiaryId);
 
                 // Send notification email to beneficiary
-                const { emailService } = await import('../services/emailService');
                 emailService.sendDonationReceivedEmail(
                     beneficiary.email,
                     beneficiary.fullName || beneficiary.username,

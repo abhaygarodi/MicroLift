@@ -92,7 +92,7 @@ const DonorDashboard = ({ user }) => {
                                         </Link>
                                     </td>
                                     <td className="fw-bold">₹{d.amount}</td>
-                                    <td>{new Date(d.createdAt || d.donationDate).toLocaleDateString()}</td>
+                                    <td>{new Date(d.donatedAt || d.createdAt || d.donationDate).toLocaleDateString()}</td>
                                 </tr>
                             ))}
                         </tbody>

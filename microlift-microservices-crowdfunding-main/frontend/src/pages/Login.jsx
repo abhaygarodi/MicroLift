@@ -25,10 +25,14 @@ const Login = () => {
     // But `useEffect` is better for that.
 
     React.useEffect(() => {
-        if (message && user) {
-            logout(); // Force logout if we have a success message (coming from register)
+        // Clear any stale tokens when landing on login page
+        // This prevents old tokens from being attached to the login request
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (user) {
+            logout();
         }
-    }, [message, user, logout]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleSubmit = async (e) => {
         e.preventDefault();

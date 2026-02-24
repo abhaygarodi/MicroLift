@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Tabs, Tab, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { emailService } from '../services/emailService';
 import CaptchaComponent from '../components/CaptchaComponent';
 
 const Register = () => {
@@ -26,9 +27,7 @@ const Register = () => {
             await register({ ...formData, role: key.toUpperCase() });
 
             // Send Welcome Email
-            import('../services/emailService').then(({ emailService }) => {
-                emailService.sendWelcomeEmail({ username: formData.fullName, email: formData.email });
-            });
+            emailService.sendWelcomeEmail({ username: formData.fullName, email: formData.email });
 
             // User requested explicit login flow
             navigate('/login', { state: { message: 'Registration successful! Please login to continue.' } });

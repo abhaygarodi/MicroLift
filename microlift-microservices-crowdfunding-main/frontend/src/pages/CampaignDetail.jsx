@@ -32,11 +32,9 @@ const CampaignDetail = () => {
         if (window.confirm("Are you sure you want to delete this campaign? This action cannot be undone.")) {
             try {
                 await campaignService.deleteCampaign(id);
-                alert("Campaign deleted successfully");
-                navigate('/campaigns');
+                navigate('/campaigns', { state: { message: 'Campaign deleted successfully' } });
             } catch (err) {
                 console.error("Failed to delete campaign", err);
-                alert("Failed to delete campaign");
             }
         }
     };
@@ -150,7 +148,7 @@ const CampaignDetail = () => {
                         <div className="sticky-top" style={{ top: '100px', zIndex: 100 }}>
                             <Card className="border-0 shadow-sm p-3">
                                 <Card.Body>
-                                    <h3 className="fw-bold mb-3">₹{campaign.raisedAmount.toLocaleString()} <span className="text-muted fs-6 fw-normal">raised of ₹{campaign.goalAmount.toLocaleString()}</span></h3>
+                                    <h3 className="fw-bold mb-3">₹{(campaign.raisedAmount || 0).toLocaleString()} <span className="text-muted fs-6 fw-normal">raised of ₹{(campaign.goalAmount || 0).toLocaleString()}</span></h3>
                                     <ProgressBar now={percent} variant="success" className="mb-2" style={{ height: '10px' }} />
                                     <div className="d-flex justify-content-between text-muted small mb-4">
                                         <span>{percent}% funded</span>

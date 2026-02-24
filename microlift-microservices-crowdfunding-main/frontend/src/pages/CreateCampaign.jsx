@@ -81,8 +81,6 @@ const CreateCampaign = () => {
             console.error(err);
             const errMsg = err.response?.data?.message || err.message || 'Failed to create campaign. Please try again.';
             setError(`Error: ${errMsg} (Status: ${err.response?.status})`);
-            // Alert for immediate visibility
-            alert(`Campaign Creation Failed:\n${errMsg}\nStatus: ${err.response?.status}`);
         } finally {
             setLoading(false);
         }
@@ -117,6 +115,7 @@ const CreateCampaign = () => {
                                                 <option value="EDUCATION">Education</option>
                                                 <option value="MEDICAL">Medical</option>
                                                 <option value="EMERGENCY">Emergency</option>
+                                                <option value="ENVIRONMENT">Environment</option>
                                             </Form.Select>
                                         </Col>
                                         <Col md={6} className="mb-3">

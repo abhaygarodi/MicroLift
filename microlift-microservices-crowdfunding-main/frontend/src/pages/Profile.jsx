@@ -29,7 +29,7 @@ const Profile = () => {
                     <Card className="shadow-sm border-0 text-center p-4">
                         <div className="mb-3">
                             <Image
-                                src="https://via.placeholder.com/150"
+                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName)}&background=0D6EFD&color=fff&size=150`}
                                 roundedCircle
                                 width={120}
                                 height={120}

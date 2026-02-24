@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Badge, Alert, Card, Modal, Spinner, Accordion, Row, Col } from 'react-bootstrap';
 import { campaignService, authService, donationService, payoutService } from '../services/api';
+import { emailService } from '../services/emailService';
 
 const AdminDashboard = () => {
     const [campaigns, setCampaigns] = useState([]);
@@ -68,9 +69,7 @@ const AdminDashboard = () => {
             if (status === 'ACTIVE') {
                 const campaign = campaigns.find(c => c.id === id);
                 if (campaign) {
-                    import('../services/emailService').then(({ emailService }) => {
-                        emailService.sendCampaignApprovedEmail(campaign, null);
-                    });
+                    emailService.sendCampaignApprovedEmail(campaign, null);
                 }
             }
             setMessage({ type: 'success', text: `Campaign ${status === 'ACTIVE' ? 'Approved' : 'Rejected'} successfully` });
@@ -186,21 +185,19 @@ const AdminDashboard = () => {
         try {
             await authService.verifyUser(selectedUser.id, status);
             if (status === 'VERIFIED') {
-                import('../services/emailService').then(({ emailService }) => {
-                    emailService.sendVerificationEmail(selectedUser);
-                });
+                emailService.sendVerificationEmail(selectedUser);
             }
-            alert(`User ${status === 'VERIFIED' ? 'Verified' : 'Rejected'}!`);
+            setMessage({ type: 'success', text: `User ${status === 'VERIFIED' ? 'Verified' : 'Rejected'}!` });
             setShowUserModal(false);
             fetchData();
         } catch {
-            alert('Action Failed');
+            setMessage({ type: 'danger', text: 'Action Failed' });
         }
     };
 
     const handleCreatePayout = async () => {
         if (!payoutAmount || isNaN(payoutAmount) || payoutAmount <= 0) {
-            alert("Enter a valid amount");
+            setMessage({ type: 'warning', text: 'Enter a valid amount' });
             return;
         }
         setProcessingPayout(true);
@@ -210,9 +207,9 @@ const AdminDashboard = () => {
             const updatedPayouts = await payoutService.getPayoutsByBeneficiary(selectedUser.id);
             setUserPayouts(updatedPayouts);
             setPayoutAmount('');
-            alert("Payout Requested Successfully");
+            setMessage({ type: 'success', text: 'Payout Requested Successfully' });
         } catch (e) {
-            alert("Failed to request payout: " + e.message);
+            setMessage({ type: 'danger', text: 'Failed to request payout: ' + e.message });
         } finally {
             setProcessingPayout(false);
         }
@@ -224,7 +221,7 @@ const AdminDashboard = () => {
             const updatedPayouts = await payoutService.getPayoutsByBeneficiary(selectedUser.id);
             setUserPayouts(updatedPayouts);
         } catch (e) {
-            alert("Failed to approve payout");
+            setMessage({ type: 'danger', text: 'Failed to approve payout' });
         }
     };
 

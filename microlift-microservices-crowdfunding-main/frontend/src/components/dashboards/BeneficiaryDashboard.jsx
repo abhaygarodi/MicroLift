@@ -12,20 +12,21 @@ const BeneficiaryDashboard = () => {
     const [uploading, setUploading] = useState(false);
     const [donations, setDonations] = useState([]);
     const [donorNames, setDonorNames] = useState({});
+    const [message, setMessage] = useState(null);
 
     const handleUploadKyc = async (file) => {
         setUploading(true);
         try {
 
             await authService.uploadKyc(currentUser.email, file);
-            alert('Document uploaded successfully! Verification pending.');
+            setMessage({ type: 'success', text: 'Document uploaded successfully! Verification pending.' });
             // Manually update local state to reflect change immediately, including the fact that a doc exists
             // We use a placeholder string if we don't have the full URL, just to trigger the "Doc: YES" logic
             setCurrentUser(prev => ({ ...prev, kycStatus: 'PENDING', isVerified: false, kycDocumentUrl: 'uploaded-pending-save' }));
             // Also update context/localStorage if possible, but local state is priority
         } catch (error) {
             console.error(error);
-            alert('Upload failed: ' + (error.response?.data?.message || error.message));
+            setMessage({ type: 'danger', text: 'Upload failed: ' + (error.response?.data?.message || error.message) });
         } finally {
             setUploading(false);
         }
@@ -84,6 +85,8 @@ const BeneficiaryDashboard = () => {
         <div>
             <h2 className="mb-4 fw-bold">My Beneficiary Dashboard</h2>
 
+            {message && <Alert variant={message.type} onClose={() => setMessage(null)} dismissible>{message.text}</Alert>}
+
             <Row className="mb-4">
                 <Col md={12}>
 
@@ -119,7 +122,7 @@ const BeneficiaryDashboard = () => {
                                         const fileInput = document.getElementById('kycFileInput');
                                         const file = fileInput?.files?.[0];
                                         if (!file) {
-                                            alert('Please select a file first');
+                                            setMessage({ type: 'warning', text: 'Please select a file first' });
                                             return;
                                         }
                                         handleUploadKyc(file);
@@ -138,7 +141,7 @@ const BeneficiaryDashboard = () => {
                 <Col md={4}>
                     <Card className="text-center shadow-sm border-0 bg-primary text-white">
                         <Card.Body className="py-4">
-                            <h3>₹{totalRaised.toLocaleString()}</h3>
+                            <h3>₹{(totalRaised || 0).toLocaleString()}</h3>
                             <p className="mb-0">Total Funds Received</p>
                         </Card.Body>
                     </Card>
@@ -194,8 +197,8 @@ const BeneficiaryDashboard = () => {
                                                 {c.status}
                                             </Badge>
                                         </td>
-                                        <td>₹{c.goalAmount.toLocaleString()}</td>
-                                        <td>₹{c.raisedAmount.toLocaleString()}</td>
+                                        <td>₹{(c.goalAmount || 0).toLocaleString()}</td>
+                                        <td>₹{(c.raisedAmount || 0).toLocaleString()}</td>
                                         <td>
                                             <div className="d-flex align-items-center">
                                                 <span className="me-2">{Math.round((c.raisedAmount / c.goalAmount) * 100)}%</span>
@@ -235,9 +238,9 @@ const BeneficiaryDashboard = () => {
                             ) : (
                                 donations.map((d, idx) => (
                                     <tr key={idx}>
-                                        <td>{new Date(d.createdAt).toLocaleDateString()}</td>
+                                        <td>{new Date(d.donatedAt || d.createdAt).toLocaleDateString()}</td>
                                         <td>{campaigns.find(c => c.id === d.campaignId)?.title || `Campaign #${d.campaignId}`}</td>
-                                        <td className="fw-bold text-success">+ ₹{d.amount.toLocaleString()}</td>
+                                        <td className="fw-bold text-success">+ ₹{(d.amount || 0).toLocaleString()}</td>
                                         <td>{d.anonymous ? 'Anonymous' : (donorNames[d.donorId] || `Donor #${d.donorId}`)}</td>
                                     </tr>
                                 ))

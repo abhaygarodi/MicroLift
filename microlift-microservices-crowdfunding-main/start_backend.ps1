@@ -3,7 +3,7 @@ $ErrorActionPreference = "Continue"
 Write-Host "Starting MicroLift All Services (Backend + Frontend) in visible windows..." -ForegroundColor Green
 Write-Host "Close each window to stop that service" -ForegroundColor Yellow
 Write-Host ""
-$basePath = "j:\DacProject\microlift-microservices-crowdfunding-main\microlift-microservices-crowdfunding-main"
+$basePath = $PSScriptRoot
 
 # 1. Discovery Server  
 Write-Host "Starting Discovery Server (8761)..."

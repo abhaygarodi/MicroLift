@@ -44,13 +44,13 @@ const CampaignCard = ({ id, image, title, description, category, raised, goal, l
 
                 <Card.Title className="fw-bold mb-2 text-truncate" title={title}>{title}</Card.Title>
                 <Card.Text className="text-muted small mb-3 flex-grow-1">
-                    {description.length > 80 ? description.substring(0, 80) + '...' : description}
+                    {(description || "").length > 80 ? description.substring(0, 80) + '...' : description}
                 </Card.Text>
 
                 <div className="mt-auto">
                     <div className="d-flex justify-content-between small fw-bold mb-1">
-                        <span>Raised: ₹{raised.toLocaleString()}</span>
-                        <span className="text-muted">Goal: ₹{goal.toLocaleString()}</span>
+                        <span>Raised: ₹{(raised || 0).toLocaleString()}</span>
+                        <span className="text-muted">Goal: ₹{(goal || 0).toLocaleString()}</span>
                     </div>
                     <ProgressBar now={percent} variant="success" className="mb-3" style={{ height: '8px' }} />
 

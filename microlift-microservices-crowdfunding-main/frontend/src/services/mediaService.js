@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_BASE } from './config';
 
-const MEDIA_URL = 'http://localhost:8080/api/media';
+const MEDIA_URL = `${API_BASE}/media`;
 
 const mediaService = {
     uploadFile: async (file) => {
